@@ -154,10 +154,9 @@ function showWarningScreen(reason, warningsCount) {
     
     document.getElementById('btnAcOk').addEventListener('click', () => {
         overlay.remove();
-        // Dá um pequeno atraso antes de liberar para evitar disparos duplos do mesmo evento
-        setTimeout(() => {
-            isBlocked = false;
-        }, 500);
+        // Remove a sessão do usuário e recarrega a página para voltar ao início
+        localStorage.removeItem('candidateDiscordId');
+        window.location.reload();
     });
 }
 
