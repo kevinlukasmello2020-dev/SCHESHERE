@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distrito Roleplay | Teste de Screen Share</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="app-container">
+        <!-- TELA INICIAL -->
+        <div id="screen-home" class="screen active">
+            <div class="logo-container">
+                <img src="logo.jpg" alt="Distrito Roleplay Logo" class="logo-img">
+            </div>
+            
+            <div class="card login-card">
+                <h2>Teste de Conhecimento</h2>
+                <p>Insira seus dados para iniciar a avaliação oficial da equipe.</p>
+                
+                <div class="timer-warning">
+                    <i class="fa-solid fa-stopwatch"></i> Atenção: Você terá no máximo <strong>5 minutos</strong> para concluir.
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="candidateName" placeholder="Nome / Nickname no servidor" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-brands fa-discord"></i>
+                    <input type="text" id="discordId" placeholder="Seu ID do Discord (ex: 123456789...)" required>
+                </div>
+
+                <button id="btnStart" class="btn primary-btn">
+                    <span>INICIAR TESTE</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA DO TESTE -->
+        <div id="screen-test" class="screen">
+            <header class="test-header">
+                <div class="header-info">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>DISTRITO ROLEPLAY</span>
+                </div>
+                <div class="timer-display" id="timerDisplay">
+                    <i class="fa-solid fa-stopwatch"></i> 05:00
+                </div>
+                <div class="question-counter">
+                    Questão <span id="currentQuestionNum">1</span>/<span id="totalQuestionsNum">18</span>
+                </div>
+            </header>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="card question-card">
+                <h2 id="questionText" class="question-text">Carregando pergunta...</h2>
+                
+                <div id="optionsContainer" class="options-container">
+                    <!-- Opções geradas via JS -->
+                </div>
+            </div>
+
+            <div class="test-footer">
+                <button id="btnNext" class="btn secondary-btn" disabled>
+                    PRÓXIMA <i class="fa-solid fa-angle-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA DE LOADING -->
+        <div id="screen-loading" class="screen">
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <h2>Analisando Resultados...</h2>
+                <p>Aguarde enquanto processamos suas respostas de forma segura.</p>
+            </div>
+        </div>
+
+        <!-- TELA DE RESULTADO -->
+        <div id="screen-result" class="screen">
+            <div class="logo-container small">
+                <img src="logo.jpg" alt="Distrito Roleplay Logo" class="logo-img" style="width: 150px;">
+            </div>
+
+            <div class="card result-card">
+                <div class="result-icon passed" style="margin-bottom: 20px;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                
+                <h2 style="margin-bottom: 15px; font-family: 'Rajdhani', sans-serif; font-size: 2rem;">Respostas enviadas com sucesso!</h2>
+                
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 1.1rem; line-height: 1.6;">
+                    Suas respostas foram registradas e enviadas com sucesso.<br>
+                    Agora é só aguardar a análise da equipe responsável.
+                </p>
+
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-glow); padding: 15px; border-radius: 8px; color: var(--accent); font-weight: 500; line-height: 1.5;">
+                    Boa sorte! Esperamos que você seja aprovado e faça parte da equipe de Screen Share do Distrito Roleplay. 🚀
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="developer-credit">
+        Desenvolvido por <span>DRP STAR</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
