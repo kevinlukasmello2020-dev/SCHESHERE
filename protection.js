@@ -143,8 +143,8 @@ function showWarningScreen(reason, warningsCount) {
         </style>
         <div class="ac-box-warning">
             <div class="ac-icon-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div class="ac-title-warning">AVISO ${warningsCount}/3</div>
-            <div class="ac-message">Detectamos uma ação suspeita. Você tem apenas mais ${3 - warningsCount} chance(s) antes do bloqueio permanente.</div>
+            <div class="ac-title-warning">AVISO ${warningsCount}/4</div>
+            <div class="ac-message">Detectamos uma ação suspeita. Você tem apenas mais ${5 - warningsCount} chance(s) antes do bloqueio permanente.</div>
             <div class="ac-reason-warning"><strong>Ação detectada:</strong> ${reason}</div>
             <button class="ac-btn-ok" id="btnAcOk">ENTENDIDO, VOLTAR AO TESTE</button>
         </div>

@@ -38,7 +38,7 @@ exports.handler = async function(event, context) {
             record.reason = details;
             record.type = type;
 
-            if (record.warnings >= 3) {
+            if (record.warnings >= 5) {
                 // Aplica o bloqueio de 24h
                 record.blockedUntil = Date.now() + 24 * 60 * 60 * 1000;
                 userRecords[userId] = record;
