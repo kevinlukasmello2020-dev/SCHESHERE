@@ -1,7 +1,4 @@
-// Memória temporária para armazenar os bloqueios.
-// NOTA: Em um ambiente serverless real no Netlify, esta variável pode ser resetada caso
-// a função fique ociosa por muito tempo. Para produção total, os dados devem ser salvos em um banco de dados externo.
-const userBlocks = {};
+const userRecords = {};
 
 exports.handler = async function(event, context) {
     const headers = {
@@ -24,69 +21,62 @@ exports.handler = async function(event, context) {
         const action = body.action || (event.path.includes('violation') ? 'violation' : 'check');
 
         if (!userId) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: "Usuário não identificado." })
-            };
+            return { statusCode: 400, headers, body: JSON.stringify({ error: "Usuário não identificado." }) };
         }
+
+        let record = userRecords[userId] || { warnings: 0, blockedUntil: 0, reason: '', type: '' };
 
         // REGISTRAR VIOLAÇÃO
         if (action === 'violation') {
-            const blockedAt = new Date();
-            const blockedUntil = new Date(blockedAt.getTime() + 24 * 60 * 60 * 1000); // 24 horas
-            
-            userBlocks[userId] = {
-                type: type,
-                reason: details,
-                blockedUntil: blockedUntil.getTime()
-            };
+            // Se já está bloqueado, apenas retorna o bloqueio
+            if (record.blockedUntil > Date.now()) {
+                const remainingSeconds = Math.floor((record.blockedUntil - Date.now()) / 1000);
+                return { statusCode: 200, headers, body: JSON.stringify({ action: 'blocked', remainingSeconds }) };
+            }
 
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ 
-                    success: true, 
-                    remainingSeconds: 24 * 60 * 60 
-                })
-            };
+            record.warnings += 1;
+            record.reason = details;
+            record.type = type;
+
+            if (record.warnings >= 3) {
+                // Aplica o bloqueio de 24h
+                record.blockedUntil = Date.now() + 24 * 60 * 60 * 1000;
+                userRecords[userId] = record;
+                return { 
+                    statusCode: 200, headers, 
+                    body: JSON.stringify({ action: 'blocked', remainingSeconds: 24 * 60 * 60 }) 
+                };
+            } else {
+                userRecords[userId] = record;
+                return { 
+                    statusCode: 200, headers, 
+                    body: JSON.stringify({ action: 'warning', warnings: record.warnings }) 
+                };
+            }
         } 
         
         // VERIFICAR BLOQUEIO
         if (action === 'check') {
-            const block = userBlocks[userId];
-            if (!block) {
+            if (record.blockedUntil > Date.now()) {
+                const remainingSeconds = Math.floor((record.blockedUntil - Date.now()) / 1000);
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ blocked: true, reason: record.reason, remainingSeconds })
+                };
+            } else {
+                // Se o tempo passou, remove o bloqueio e zera avisos
+                if (record.blockedUntil > 0) {
+                    delete userRecords[userId];
+                }
                 return { statusCode: 200, headers, body: JSON.stringify({ blocked: false }) };
             }
-
-            const now = Date.now();
-            const remainingSeconds = Math.floor((block.blockedUntil - now) / 1000);
-
-            if (remainingSeconds <= 0) {
-                delete userBlocks[userId]; // Bloqueio expirou
-                return { statusCode: 200, headers, body: JSON.stringify({ blocked: false }) };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    blocked: true,
-                    type: block.type,
-                    reason: block.reason,
-                    remainingSeconds: remainingSeconds
-                })
-            };
         }
 
         return { statusCode: 404, headers, body: JSON.stringify({ error: "Ação inválida." }) };
 
     } catch (err) {
         console.error(err);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ error: "Erro interno no servidor." })
-        };
+        return { statusCode: 500, headers, body: JSON.stringify({ error: "Erro interno no servidor." }) };
     }
 };

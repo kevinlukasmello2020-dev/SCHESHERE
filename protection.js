@@ -60,11 +60,14 @@ async function handleViolation(type, details) {
         });
         const data = await res.json();
         
-        if (data.success) {
+        if (data.action === 'blocked') {
             showBlockScreen(details, data.remainingSeconds);
+        } else if (data.action === 'warning') {
+            showWarningScreen(details, data.warnings);
         }
     } catch (e) {
         console.error('Falha ao registrar punição', e);
+        isBlocked = false;
     }
 }
 
@@ -114,7 +117,51 @@ window.addEventListener('blur', () => {
     }
 });
 
-// 4. TELA DE BLOQUEIO E CONTADOR (Interface)
+// 4. TELA DE AVISO (Warning)
+function showWarningScreen(reason, warningsCount) {
+    const existing = document.getElementById('antiCheatOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'antiCheatOverlay';
+    overlay.innerHTML = `
+        <style>
+            #antiCheatOverlay {
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(10, 12, 16, 0.95); color: #e2e8f0; z-index: 999999;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                font-family: 'Rajdhani', sans-serif; text-align: center;
+                backdrop-filter: blur(10px);
+            }
+            .ac-box-warning { background: #1a1500; border: 1px solid rgba(234, 179, 8, 0.5); padding: 3rem; border-radius: 12px; max-width: 600px; box-shadow: 0 0 40px rgba(234, 179, 8, 0.2); }
+            .ac-icon-warning { font-size: 4rem; color: #eab308; margin-bottom: 1rem; filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.5)); }
+            .ac-title-warning { font-size: 2.5rem; color: #eab308; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+            .ac-message { font-size: 1.2rem; margin-bottom: 1rem; font-family: 'Roboto', sans-serif;}
+            .ac-reason-warning { background: rgba(234,179,8,0.1); padding: 15px; border-radius: 8px; color: #fef08a; margin-bottom: 2rem; font-weight: 500; font-family: 'Roboto', sans-serif; border: 1px solid rgba(234,179,8,0.4); }
+            .ac-btn-ok { background: #eab308; color: #000; border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; font-family: 'Rajdhani', sans-serif; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+            .ac-btn-ok:hover { background: #facc15; box-shadow: 0 0 15px rgba(234, 179, 8, 0.5); }
+        </style>
+        <div class="ac-box-warning">
+            <div class="ac-icon-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="ac-title-warning">AVISO ${warningsCount}/3</div>
+            <div class="ac-message">Detectamos uma ação suspeita. Você tem apenas mais ${3 - warningsCount} chance(s) antes do bloqueio permanente.</div>
+            <div class="ac-reason-warning"><strong>Ação detectada:</strong> ${reason}</div>
+            <button class="ac-btn-ok" id="btnAcOk">ENTENDIDO, VOLTAR AO TESTE</button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    
+    document.getElementById('btnAcOk').addEventListener('click', () => {
+        overlay.remove();
+        // Dá um pequeno atraso antes de liberar para evitar disparos duplos do mesmo evento
+        setTimeout(() => {
+            isBlocked = false;
+        }, 500);
+    });
+}
+
+// 5. TELA DE BLOQUEIO E CONTADOR (Interface Final)
 function showBlockScreen(reason, remainingSeconds) {
     isBlocked = true;
     
