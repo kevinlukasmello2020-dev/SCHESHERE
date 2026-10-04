@@ -73,6 +73,12 @@ exports.handler = async function(event, context) {
             }
         }
 
+        // DESBLOQUEAR TODOS (Admin)
+        if (action === 'unban_all') {
+            Object.keys(userRecords).forEach(k => delete userRecords[k]);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true, message: "Todos os usuários foram desbloqueados." }) };
+        }
+
         return { statusCode: 404, headers, body: JSON.stringify({ error: "Ação inválida." }) };
 
     } catch (err) {
