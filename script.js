@@ -76,11 +76,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         candidateData = { name, discordId };
+        localStorage.setItem('candidateDiscordId', discordId); // Salva para o anti-cheat
 
         // Botão visualmente carregando
         const originalText = btnStart.innerHTML;
         btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Conectando...';
         btnStart.disabled = true;
+
+        // Verifica o sistema de Anti-Cheat antes de prosseguir
+        if (typeof checkExistingBlock === 'function') {
+            const isBlocked = await checkExistingBlock();
+            if (isBlocked) {
+                btnStart.innerHTML = originalText;
+                btnStart.disabled = false;
+                return;
+            }
+        }
 
         try {
             const res = await fetch(`${API_URL}/questions`);
